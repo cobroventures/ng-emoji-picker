@@ -1,6 +1,8 @@
 // Important notes
 // All of the data for the emojis is based on https://github.com/needim/wdt-emoji-bundle/blob/master/sheets/sheet_twitter_64_indexed_128.png
 // If you want to use a diifferent emoji set,we have to do the following
+// 0. Update the file img/emoji_spritesheet.png -- this is a copy of
+// https://github.com/needim/wdt-emoji-bundle/blob/master/sheets/sheet_twitter_64_indexed_128.png
 // 1. Open the file shared-config.data.js, the data there is from
 // https://github.com/needim/wdt-emoji-bundle/blob/master/emoji.js (emoji.prototype.data)
 // Update the data here
