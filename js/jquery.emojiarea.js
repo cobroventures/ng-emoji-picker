@@ -30,7 +30,7 @@
 	 	   Backspace, Tab, Ctrl, Alt, Left Arrow, Up Arrow, Right Arrow, Down Arrow, Cmd Key, Delete
 	*/
 	var MAX_LENGTH_ALLOWED_KEYS = [8, 9, 17, 18, 37, 38, 39, 40, 91, 46];
-	
+
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	/*
@@ -142,7 +142,7 @@
 	})();
 
 	util.insertAtCursor = function(text, el) {
-		text = ' ' + text;
+		/*Do not add an extra white-space*/
 		var val = el.value, endIndex, startIndex, range;
 		if (typeof el.selectionStart != 'undefined'
 				&& typeof el.selectionEnd != 'undefined') {
@@ -239,36 +239,44 @@
 	 * the icon is created from a spritesheet.
 	 */
 	EmojiArea.createIcon = function(emoji, menu) {
-		var category = emoji[0];
-		var row = emoji[1];
-		var column = emoji[2];
-		var name = emoji[3];
-		var filename = $.emojiarea.assetsPath + '/emoji_spritesheet_!.png';
+		var category = emoji[0];//Example value: 0
+		var row = emoji[1];//Example value: 1
+		var column = emoji[2];//Exampe value: 0
+		var name = emoji[3];//Example value: :sweat_smile:
+    // We are using a single sprite sheet
+		var filename = $.emojiarea.assetsPath + '/emoji_spritesheet.png';
+    // Does this need a new file, not sure of the license on this one
     var blankGifPath = $.emojiarea.assetsPath + '/blank.gif';
-		var iconSize = menu && Config.Mobile ? 26 : $.emojiarea.iconSize
+		var iconSize = menu && Config.Mobile ? 26 : $.emojiarea.iconSize;//25
 		var xoffset = -(iconSize * column);
 		var yoffset = -(iconSize * row);
-		var scaledWidth = (Config.EmojiCategorySpritesheetDimens[category][1] * iconSize);
-		var scaledHeight = (Config.EmojiCategorySpritesheetDimens[category][0] * iconSize);
 
 		var style = 'display:inline-block;';
 		style += 'width:' + iconSize + 'px;';
 		style += 'height:' + iconSize + 'px;';
-		style += 'background:url(\'' + filename.replace('!', category) + '\') '
+
+		style += 'background:url(\'' + filename + '\') '
 				+ xoffset + 'px ' + yoffset + 'px no-repeat;';
-		style += 'background-size:' + scaledWidth + 'px ' + scaledHeight
-				+ 'px;';
+
+		style += 'background-size:' + Config.EmojiCategorySpritesheetDimens[0][0] + '00%;';
+
+    /*Example value returned is of the form: "<img src="images/blank.gif"
+    class="img" style="display:inline-block;width:25px;
+    height:25px;background:url('images/emoji_spritesheet_0.png')
+    0px -25px no-repeat;background-size:675px 175px;" alt=":sweat_smile:">"
+    */
 		return '<img src="' + blankGifPath + '" class="img" style="'
 				+ style + '" alt="' + util.htmlEntities(name) + '">';
+
 	};
-	
+
 	$.emojiarea.createIcon = EmojiArea.createIcon;
 	/* ! MODIFICATION END */
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	/**
 	 * Editor (plain-text)
-	 * 
+	 *
 	 * @constructor
 	 * @param {object}
 	 *            $textarea
@@ -329,8 +337,9 @@
 			});
 		}
 
-    $textarea.after("<i class='emoji-picker-icon emoji-picker " + this.options.popupButtonClasses + "' data-id='" + id + "' data-type='picker'></i>");
-
+		/*adeopura: Works Start*/
+    $textarea.after("<i class='bu-icon bu-icon--edit emoji-picker-icon emoji-picker " + this.options.popupButtonClasses + "' data-id='" + id + "' data-type='picker'></i>");
+		/*adeopura: Works End*/
 
 		this.setup();
 	};
@@ -378,7 +387,7 @@
 
 	/**
 	 * Emoji Dropdown Menu
-	 * 
+	 *
 	 * @constructor
 	 * @param {object}
 	 *            emojiarea
@@ -406,12 +415,15 @@
 				.appendTo(this.$menu);
 		this.$categoryTabs = $(
 				'<table class="emoji-menu-tabs"><tr>'
-						+ '<td><a class="emoji-menu-tab icon-recent" ></a></td>'
-						+ '<td><a class="emoji-menu-tab icon-smile" ></a></td>'
-						+ '<td><a class="emoji-menu-tab icon-flower"></a></td>'
-						+ '<td><a class="emoji-menu-tab icon-bell"></a></td>'
-						+ '<td><a class="emoji-menu-tab icon-car"></a></td>'
-						+ '<td><a class="emoji-menu-tab icon-grid"></a></td>'
+						+ '<td><a class="bu-icon bu-icon--clock emoji-menu-tab "></a></td>'//Recent
+						+ '<td><a class="bu-icon bu-icon--notification emoji-menu-tab "></a></td>'//Symbols
+						+ '<td><a class="bu-icon bu-icon--custom emoji-menu-tab"></a></td>'//Objects
+						+ '<td><a class="bu-icon bu-icon--detail-view emoji-menu-tab"></a></td>'//Nature
+						+ '<td><a class="bu-icon bu-icon--archive emoji-menu-tab"></a></td>'//Foods
+						+ '<td><a class="bu-icon bu-icon--person emoji-menu-tab"></a></td>'//People
+						+ '<td><a class="bu-icon bu-icon--wheel emoji-menu-tab"></a></td>'//Places
+						+ '<td><a class="bu-icon bu-icon--targeted emoji-menu-tab"></a></td>'//Activity
+						+ '<td><a class="bu-icon bu-icon--flag emoji-menu-tab"></a></td>'//Flags
 						+ '</tr></table>').appendTo(this.$itemsTailWrap);
 		this.$itemsWrap = $(
 				'<div class="emoji-items-wrap nano mobile_scrollable_wrap"></div>')
@@ -426,12 +438,12 @@
 		 * ! MODIFICATION: Following 3 lines were added by Igor Zhukov, in order
 		 * to add scrollbars to EmojiMenu
 		 */
-		
+
 		  if (!Config.Mobile) {
 		  this.$itemsWrap.nanoScroller({preventPageScrolling: true, tabIndex:
 		  -1}); }
-		 
-		
+
+
 		//this.$itemsWrap.nanoScroller({preventPageScrolling: true, tabIndex:* -1});
 
 		$body.on('keydown', function(e) {
@@ -524,20 +536,20 @@
 		var self = this;
 		this.$categoryTabs.find('.emoji-menu-tab').each(function(index) {
 			if (index === category) {
-				this.className += '-selected';
+        this.classList.add("emoji-menu-tab--selected");
 			} else {
-				this.className = this.className.replace('-selected', '');
+        this.classList.remove("emoji-menu-tab--selected");
 			}
 		});
 		this.currentCategory = category;
 		this.load(category);
 
-		
+
 		 if (!Config.Mobile) { this.$itemsWrap.nanoScroller({ scroll: 'top'
 		 }); }
-		 
-		 
-		 
+
+
+
 	};
 	/* ! MODIFICATION END */
 
@@ -571,10 +583,10 @@
 		var updateItems = function() {
 			self.$items.html(html.join(''));
 
-			
+
 			  if (!Config.Mobile) { setTimeout(function () {
 			  self.$itemsWrap.nanoScroller(); }, 100); }
-			 
+
 		}
 
 		if (category > 0) {
@@ -610,7 +622,7 @@
 				}
 				updateItems();
 			});
-		}0
+		}
 	};
 
 	EmojiMenu.prototype.reposition = function(attachmentLocation,menuLocation) {
@@ -671,10 +683,10 @@
 	      console.log(emojiMenuLocation)
 	      window.emojiPicker = new EmojiPicker({
 	        emojiable_selector: '[emoji-picker="emoji-picker"]',
-	        assetsPath: '/assets/images/ng-emoji-picker',
+	        assetsPath: 'images',
 	        popupButtonClasses: 'fa fa-smile-o',
 	        emojiAttachmentLocation: emojiAttachmentLocation ,
-	        emojiMenuLocation: emojiMenuLocation 
+	        emojiMenuLocation: emojiMenuLocation
 	      });
 	      // Finds all elements with `emojiable_selector` and converts them to rich emoji input fields
 	      // You may want to delay this step if you have dynamically created input fields that appear later in the loading process
