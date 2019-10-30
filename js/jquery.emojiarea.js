@@ -40,6 +40,7 @@
 	$.emojiarea = {
 		assetsPath : '',
 		iconSize : 25,
+    sheetIconSize: 32,
 		emojiAttachmentLocation: "bottom right",
 		emojiMenuLocation: "top left",
 		icons : {},
@@ -248,23 +249,22 @@
     // Does this need a new file, not sure of the license on this one
     var blankGifPath = $.emojiarea.assetsPath + '/blank.gif';
 		var iconSize = menu && Config.Mobile ? 26 : $.emojiarea.iconSize;//25
-		var xoffset = -(iconSize * column);
-		var yoffset = -(iconSize * row);
+		var xoffset = -(iconSize * column) + Math.floor(column/2);
+		var yoffset = -(iconSize * row) + Math.floor(row/2);
 
 		var style = 'display:inline-block;';
 		style += 'width:' + iconSize + 'px;';
 		style += 'height:' + iconSize + 'px;';
 
-		style += 'background:url(\'' + filename + '\') '
-				+ xoffset + 'px ' + yoffset + 'px no-repeat;';
+    var sheetIconSize = $.emojiarea.sheetIconSize
 
-		style += 'background-size:' + Config.EmojiCategorySpritesheetDimens[0][0] + '00%;';
+    var sheet_size = Config.EmojiCategorySpritesheetDimens[0][0] * (sheetIconSize+2); // size of image in pixels
+    var sheet_x = 100 * (((column * (sheetIconSize+2)) + 1) / (sheet_size - sheetIconSize));
+    var sheet_y = 100 * (((row * (sheetIconSize+2)) + 1) / (sheet_size - sheetIconSize));
+    var sheet_sz = 100 * (sheet_size / sheetIconSize);
 
-    /*Example value returned is of the form: "<img src="images/blank.gif"
-    class="img" style="display:inline-block;width:25px;
-    height:25px;background:url('images/emoji_spritesheet_0.png')
-    0px -25px no-repeat;background-size:675px 175px;" alt=":sweat_smile:">"
-    */
+    style += 'background: url('+filename+');background-position:'+(sheet_x)+'% '+(sheet_y)+'%;background-size:'+sheet_sz+'% '+sheet_sz+'%';
+
 		return '<img src="' + blankGifPath + '" class="img" style="'
 				+ style + '" alt="' + util.htmlEntities(name) + '">';
 
@@ -415,13 +415,13 @@
 				.appendTo(this.$menu);
 		this.$categoryTabs = $(
 				'<table class="emoji-menu-tabs"><tr>'
-						+ '<td><a class="bu-icon bu-icon--clock emoji-menu-tab "></a></td>'//Recent
-						+ '<td><a class="bu-icon bu-icon--notification emoji-menu-tab "></a></td>'//Symbols
+            + '<td><a class="bu-icon bu-icon--clock emoji-menu-tab "></a></td>'//Recent
+            + '<td><a class="bu-icon bu-icon--person emoji-menu-tab"></a></td>'//People
+            + '<td><a class="bu-icon bu-icon--notification emoji-menu-tab "></a></td>'//Symbols
 						+ '<td><a class="bu-icon bu-icon--custom emoji-menu-tab"></a></td>'//Objects
+            + '<td><a class="bu-icon bu-icon--wheel emoji-menu-tab"></a></td>'//Places
+            + '<td><a class="bu-icon bu-icon--archive emoji-menu-tab"></a></td>'//Foods
 						+ '<td><a class="bu-icon bu-icon--detail-view emoji-menu-tab"></a></td>'//Nature
-						+ '<td><a class="bu-icon bu-icon--archive emoji-menu-tab"></a></td>'//Foods
-						+ '<td><a class="bu-icon bu-icon--person emoji-menu-tab"></a></td>'//People
-						+ '<td><a class="bu-icon bu-icon--wheel emoji-menu-tab"></a></td>'//Places
 						+ '<td><a class="bu-icon bu-icon--targeted emoji-menu-tab"></a></td>'//Activity
 						+ '<td><a class="bu-icon bu-icon--flag emoji-menu-tab"></a></td>'//Flags
 						+ '</tr></table>').appendTo(this.$itemsTailWrap);

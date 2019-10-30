@@ -7,6 +7,7 @@
         options = {};
       }
       $.emojiarea.iconSize = (ref = options.iconSize) != null ? ref : 25;
+      $.emojiarea.sheetIconSize = (ref = options.sheetIconSize) != null ? ref : 32;
       $.emojiarea.assetsPath = (ref1 = options.assetsPath) != null ? ref1 : '';
       this.generateEmojiIconSets(options);
       if (!options.emojiable_selector) {
@@ -44,12 +45,14 @@
         while (i < Config.EmojiCategories[j].length) {
           dataItem = Config.emoji_data[Config.EmojiCategories[j][i]];
 
-          name = dataItem[3][0];
-          row = dataItem[5];
-          column = dataItem[4];
+          if (dataItem) {
+            name = dataItem[3][0];
+            row = dataItem[5];
+            column = dataItem[4];
 
-          icons[':' + name + ':'] = [j, row, column, ':' + name + ':'];
-          reverseIcons[name] = dataItem[0];
+            icons[':' + name + ':'] = [j, row, column, ':' + name + ':'];
+            reverseIcons[name] = dataItem[0];
+          }
           i++;
         }
         j++;

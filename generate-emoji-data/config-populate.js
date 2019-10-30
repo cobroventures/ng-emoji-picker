@@ -1,9 +1,27 @@
+//Config = {};
+
+var categoriesListOrder = {
+  Symbols: 1,
+  Activities: 6,
+  Flags: 7,
+  'Travel & Places': 3,
+  'Food & Drink': 4,
+  'Animals & Nature': 5,
+  Objects: 2,
+  'Smileys & People': 0
+}
+
 function createCategoryToElementMap(){
   var map = {};
   var full = window.fullEmojiRawData;
 
   for (var index in full) {
     var singleElement = full[index];
+
+    if (!singleElement.has_img_twitter) {
+      continue;
+    }
+
     if (!map[singleElement.category]) {
       map[singleElement.category] = [];
       map[singleElement.category].push(singleElement);
@@ -28,7 +46,7 @@ function createCategoryToElementMap(){
 function createEmojiCategoriesList(fullEmojiMap) {
   if (fullEmojiMap) {
     var tempListMap = {};
-    Config.EmojiCategories = [];
+    Config.EmojiCategories = new Array (Object.keys(categoriesListOrder).length);
     var allCats = Object.keys(fullEmojiMap);
 
     for (var catIndex = 0; catIndex < allCats.length; catIndex++) {
@@ -40,9 +58,10 @@ function createEmojiCategoriesList(fullEmojiMap) {
       for (var itemIndex =0; itemIndex < fullEmojiMap[allCats[catIndex]].length; itemIndex++) {
         tempList.push(fullEmojiMap[allCats[catIndex]][itemIndex].unified.toLowerCase());
       }
-      Config.EmojiCategories.push(tempList);
+      Config.EmojiCategories.splice(categoriesListOrder[allCats[catIndex]], 1, tempList);
     }
   }
+  console.log("number of categories is: " + Config.EmojiCategories.length);
 }
 
 function downloadFile(content, fileName, contentType) {
@@ -79,7 +98,6 @@ function downloadCategoriesStringAsJson(){
   downloadFile(string, 'emoji-categories.txt', 'text/plain');
 }
 
-
 function createAndDownloadCategoriesData() {
   var map = createCategoryToElementMap();
   createEmojiCategoriesList(map);
@@ -100,10 +118,11 @@ function createEmojiToUnicodeMap() {
     var unifiedToUse = "";
     if (emojiDataToUse[0].length) {
       unifiedToUse = emojiDataToUse[0][Config.emoji_data[keyToUse][0].length - 1];
-    }
 
-    Config.Emoji[keyToUse].push(unifiedToUse);
-    Config.Emoji[keyToUse].push(emojiDataToUse[3]);
+
+      Config.Emoji[keyToUse].push(unifiedToUse);
+      Config.Emoji[keyToUse].push(emojiDataToUse[3]);
+    }
   }
 }
 
@@ -113,7 +132,6 @@ function downloadEmojiToUnicodeMap(){
 
   for (var allKeyIndex = 0; allKeyIndex < allKeys.length; allKeyIndex++) {
     var keyToUse = allKeys[allKeyIndex];
-
     string += '"' + keyToUse + '"' + ': ["' + Config.Emoji[keyToUse][0] + '"' +  "," + "[" + '"' + Config.Emoji[keyToUse][1][0] + '"' + "]]";
 
     if (allKeyIndex < allKeys.length - 1) {
