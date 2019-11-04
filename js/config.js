@@ -1,3 +1,8 @@
+// Legal
+// Per Brian Detwiler - Your requests to use ng-emoji-picker, js-emoji, twemoji, and emoji-data are approved
+// under their respective licenses for distribution purposes.  Please reference this approval in your
+// comments when you incorporate the software in Bublup code.
+
 // Important notes
 // All of the data for the emojis is based on https://github.com/iamcal/emoji-data/blob/master/sheet_twitter_32.png
 // If you want to use a diifferent emoji set,we have to do the following
