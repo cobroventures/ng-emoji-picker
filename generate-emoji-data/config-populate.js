@@ -132,7 +132,9 @@ function downloadEmojiToUnicodeMap(){
 
   for (var allKeyIndex = 0; allKeyIndex < allKeys.length; allKeyIndex++) {
     var keyToUse = allKeys[allKeyIndex];
-    string += '"' + keyToUse + '"' + ': ["' + Config.Emoji[keyToUse][0] + '"' +  "," + "[" + '"' + Config.Emoji[keyToUse][1][0] + '"' + "]]";
+    string += '"' + keyToUse + '"' + ': ["' +
+      Config.Emoji[keyToUse][0] + '"' +  "," + "[" + '"' +
+      Config.Emoji[keyToUse][1][0] + '"' + "]]";
 
     if (allKeyIndex < allKeys.length - 1) {
       string += ",";

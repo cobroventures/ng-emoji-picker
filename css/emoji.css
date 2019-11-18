@@ -255,9 +255,3 @@ img.emoji {
 .emoji-menu a .label {
     display: none;
 }
-
-/* Below are the changes made for the default bublup emoji picker
-   you can override the style in an app if so desired */
-.emoji-menu {
-  z-index: 2147483647 !important;
-}

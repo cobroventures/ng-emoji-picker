@@ -338,9 +338,7 @@
 			});
 		}
 
-		/*adeopura: Works Start*/
     $textarea.after("<i class='bu-icon bu-icon--edit emoji-picker-icon emoji-picker " + this.options.popupButtonClasses + "' data-id='" + id + "' data-type='picker'></i>");
-		/*adeopura: Works End*/
 
 		this.setup();
 	};
