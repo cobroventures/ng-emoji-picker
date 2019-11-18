@@ -199,8 +199,9 @@
 				curEmojis.splice(pos, 1);
 			}
 			curEmojis.unshift(emojiKey);
-			if (curEmojis.length > 42) {
-				curEmojis = curEmojis.slice(42);
+			if (curEmojis.length > 40) {
+				// Limit recent emojis to 40 (=8x5)
+				curEmojis.length = 40;
 			}
 
 			ConfigStorage.set({
@@ -416,13 +417,13 @@
 		this.$categoryTabs = $(
 				'<table class="emoji-menu-tabs"><tr>'
             + '<td><a class="bu-icon bu-icon--clock emoji-menu-tab "></a></td>'//Recent
-            + '<td><a class="bu-icon bu-icon--person emoji-menu-tab"></a></td>'//People
-            + '<td><a class="bu-icon bu-icon--notification emoji-menu-tab "></a></td>'//Symbols
-						+ '<td><a class="bu-icon bu-icon--custom emoji-menu-tab"></a></td>'//Objects
-            + '<td><a class="bu-icon bu-icon--wheel emoji-menu-tab"></a></td>'//Places
-            + '<td><a class="bu-icon bu-icon--archive emoji-menu-tab"></a></td>'//Foods
-						+ '<td><a class="bu-icon bu-icon--detail-view emoji-menu-tab"></a></td>'//Nature
-						+ '<td><a class="bu-icon bu-icon--targeted emoji-menu-tab"></a></td>'//Activity
+            + '<td><a class="bu-icon bu-icon--emoji-smiley emoji-menu-tab"></a></td>'//People
+            + '<td><a class="bu-icon bu-icon--circle_checked emoji-menu-tab "></a></td>'//Symbols
+						+ '<td><a class="bu-icon bu-icon--emoji-object emoji-menu-tab"></a></td>'//Objects
+            + '<td><a class="bu-icon bu-icon--emoji-travel emoji-menu-tab"></a></td>'//Places
+            + '<td><a class="bu-icon bu-icon--emoji-food emoji-menu-tab"></a></td>'//Foods
+						+ '<td><a class="bu-icon bu-icon--emoji-animal emoji-menu-tab"></a></td>'//Nature
+						+ '<td><a class="bu-icon bu-icon--emoji-activities emoji-menu-tab"></a></td>'//Activity
 						+ '<td><a class="bu-icon bu-icon--flag emoji-menu-tab"></a></td>'//Flags
 						+ '</tr></table>').appendTo(this.$itemsTailWrap);
 		this.$itemsWrap = $(
@@ -641,8 +642,11 @@
 	};
 
   EmojiMenu.prototype.hide = function(callback) {
-    this.visible = false;
-    this.$menu.hide("fast");
+		this.visible = false;
+		this.$menu.hide("fast", function(){
+			// Reset to default category upon close
+			this.selectCategory(0);
+		}.bind(this));
   };
 
   EmojiMenu.prototype.show = function(emojiarea) {
