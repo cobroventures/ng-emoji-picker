@@ -61,6 +61,8 @@ function createEmojiCategoriesList(fullEmojiMap) {
       Config.EmojiCategories.splice(categoriesListOrder[allCats[catIndex]], 1, tempList);
     }
   }
+  // This utility is used only for updating the emoji library, so this console statement is
+  // OK and helpful
   console.log("number of categories is: " + Config.EmojiCategories.length);
 }
 
