@@ -255,7 +255,3 @@ img.emoji {
 .emoji-menu a .label {
     display: none;
 }
-
-.emoji-menu-hidden {
-  visibility: hidden;
-}

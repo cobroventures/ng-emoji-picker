@@ -659,21 +659,17 @@
     if (this.visible)
       return this.hide();
 
-		// Hide the emoji picker to start with, otherwise we see a small flip
-		// where the emoji picker opens in the incorrect location and then
-		// it moves to the right location.
-		this.$menu.addClass('emoji-menu-hidden');
     this.reposition(emojiarea.options.emojiAttachmentLocation,emojiarea.options.emojiMenuLocation);
 		$(this.$menu).css('z-index', ++EmojiMenu.menuZIndex);
-    this.$menu.show("fast", function(){
-			// Call tether to position correctly accounting for viewport and
-			// suchg
-			this.tether.position();
-			window.setTimeout(function(){
-				// Show the emoji picker
-				this.$menu.removeClass('emoji-menu-hidden');
-			}.bind(this));
-		}.bind(this));
+
+		// Show the emoji picker without animation. If we show animation
+		// there is actually a position change from bottom right to top left (say)
+		// which looks strange. To avoid that, remove the animation for now.
+		this.$menu.show();
+		// Call tether to position correctly accounting for viewport and
+		// such
+		this.tether.position();
+
     /*
      * MODIFICATION: Following 3 lines were added by Igor Zhukov, in order
      * to update EmojiMenu contents
