@@ -338,7 +338,7 @@
 			});
 		}
 
-    $textarea.after("<i class='bu-icon bu-icon--edit emoji-picker-icon emoji-picker " + this.options.popupButtonClasses + "' data-id='" + id + "' data-type='picker'></i>");
+    $textarea.after("<i class='bu-icon bu-icon--emoji-smiley emoji-picker-open-button emoji-picker " + this.options.popupButtonClasses + "' data-id='" + id + "' data-type='picker'></i>");
 
 		this.setup();
 	};
