@@ -640,6 +640,11 @@
 
   EmojiMenu.prototype.hide = function(callback) {
 		this.visible = false;
+
+		// Note on the window global if the emoji picker is visible. Since there
+		// can be only one emoji picker at any time, this will work.
+		window.emojiPickerStatus.isPickerVisible = false;
+
 		this.$menu.hide("fast", function(){
 			// Reset to default category upon close
 			this.selectCategory(0);
@@ -653,9 +658,22 @@
      */
     if (this.visible)
       return this.hide();
+
+		// Hide the emoji picker to start with, otherwise we see a small flip
+		// where the emoji picker opens in the incorrect location and then
+		// it moves to the right location.
+		this.$menu.addClass('emoji-menu-hidden');
     this.reposition(emojiarea.options.emojiAttachmentLocation,emojiarea.options.emojiMenuLocation);
 		$(this.$menu).css('z-index', ++EmojiMenu.menuZIndex);
-    this.$menu.show("fast");
+    this.$menu.show("fast", function(){
+			// Call tether to position correctly accounting for viewport and
+			// suchg
+			this.tether.position();
+			window.setTimeout(function(){
+				// Show the emoji picker
+				this.$menu.removeClass('emoji-menu-hidden');
+			}.bind(this));
+		}.bind(this));
     /*
      * MODIFICATION: Following 3 lines were added by Igor Zhukov, in order
      * to update EmojiMenu contents
@@ -663,8 +681,11 @@
     if (!this.currentCategory) {
       this.load(0);
     }
+
     this.visible = true;
-    this.tether.position()
+		// Note on the window global if the emoji picker is visible. Since there
+		// can be only one emoji picker at any time, this will work.
+		window.emojiPickerStatus.isPickerVisible = true;
     // this.tether.setOptions({enabled: true});
     // // Repositiong the menu as suggested by http://tether.io/overview/repositioning/
     // Tether.position();
@@ -686,6 +707,14 @@
 	        emojiAttachmentLocation: emojiAttachmentLocation ,
 	        emojiMenuLocation: emojiMenuLocation
 	      });
+
+				// Note on the window global if the emoji picker is visible. Since there
+				// can be only one emoji picker at any time, this will work.
+				if (!window.emojiPickerStatus) {
+					window.emojiPickerStatus = {}
+					window.emojiPickerStatus.isPickerVisible = false;
+				}
+
 	      // Finds all elements with `emojiable_selector` and converts them to rich emoji input fields
 	      // You may want to delay this step if you have dynamically created input fields that appear later in the loading process
 	      // It can be called as many times as necessary; previously converted input fields will not be converted again
