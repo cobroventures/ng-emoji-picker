@@ -30,7 +30,7 @@
 	 	   Backspace, Tab, Ctrl, Alt, Left Arrow, Up Arrow, Right Arrow, Down Arrow, Cmd Key, Delete
 	*/
 	var MAX_LENGTH_ALLOWED_KEYS = [8, 9, 17, 18, 37, 38, 39, 40, 91, 46];
-	
+
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	/*
@@ -40,6 +40,7 @@
 	$.emojiarea = {
 		assetsPath : '',
 		iconSize : 25,
+    sheetIconSize: 32,
 		emojiAttachmentLocation: "bottom right",
 		emojiMenuLocation: "top left",
 		icons : {},
@@ -50,7 +51,6 @@
 
 	$.fn.emojiarea = function(options) {
 		options = $.extend({}, options);
-		console.log(options);
 		return this
 			.each(function () {
 				var originalInput = $(this);
@@ -142,7 +142,7 @@
 	})();
 
 	util.insertAtCursor = function(text, el) {
-		text = ' ' + text;
+		/*Do not add an extra white-space*/
 		var val = el.value, endIndex, startIndex, range;
 		if (typeof el.selectionStart != 'undefined'
 				&& typeof el.selectionEnd != 'undefined') {
@@ -198,8 +198,9 @@
 				curEmojis.splice(pos, 1);
 			}
 			curEmojis.unshift(emojiKey);
-			if (curEmojis.length > 42) {
-				curEmojis = curEmojis.slice(42);
+			if (curEmojis.length > 40) {
+				// Limit recent emojis to 40 (=8x5)
+				curEmojis.length = 40;
 			}
 
 			ConfigStorage.set({
@@ -239,36 +240,43 @@
 	 * the icon is created from a spritesheet.
 	 */
 	EmojiArea.createIcon = function(emoji, menu) {
-		var category = emoji[0];
-		var row = emoji[1];
-		var column = emoji[2];
-		var name = emoji[3];
-		var filename = $.emojiarea.assetsPath + '/emoji_spritesheet_!.png';
+		var category = emoji[0];//Example value: 0
+		var row = emoji[1];//Example value: 1
+		var column = emoji[2];//Exampe value: 0
+		var name = emoji[3];//Example value: :sweat_smile:
+    // We are using a single sprite sheet
+		var filename = $.emojiarea.assetsPath + '/emoji_spritesheet.png';
+    // Does this need a new file, not sure of the license on this one
     var blankGifPath = $.emojiarea.assetsPath + '/blank.gif';
-		var iconSize = menu && Config.Mobile ? 26 : $.emojiarea.iconSize
-		var xoffset = -(iconSize * column);
-		var yoffset = -(iconSize * row);
-		var scaledWidth = (Config.EmojiCategorySpritesheetDimens[category][1] * iconSize);
-		var scaledHeight = (Config.EmojiCategorySpritesheetDimens[category][0] * iconSize);
+		var iconSize = menu && Config.Mobile ? 26 : $.emojiarea.iconSize;//25
+		var xoffset = -(iconSize * column) + Math.floor(column/2);
+		var yoffset = -(iconSize * row) + Math.floor(row/2);
 
 		var style = 'display:inline-block;';
 		style += 'width:' + iconSize + 'px;';
 		style += 'height:' + iconSize + 'px;';
-		style += 'background:url(\'' + filename.replace('!', category) + '\') '
-				+ xoffset + 'px ' + yoffset + 'px no-repeat;';
-		style += 'background-size:' + scaledWidth + 'px ' + scaledHeight
-				+ 'px;';
+
+    var sheetIconSize = $.emojiarea.sheetIconSize
+
+    var sheet_size = Config.EmojiCategorySpritesheetDimens[0][0] * (sheetIconSize+2); // size of image in pixels
+    var sheet_x = 100 * (((column * (sheetIconSize+2)) + 1) / (sheet_size - sheetIconSize));
+    var sheet_y = 100 * (((row * (sheetIconSize+2)) + 1) / (sheet_size - sheetIconSize));
+    var sheet_sz = 100 * (sheet_size / sheetIconSize);
+
+    style += 'background: url('+filename+');background-position:'+(sheet_x)+'% '+(sheet_y)+'%;background-size:'+sheet_sz+'% '+sheet_sz+'%';
+
 		return '<img src="' + blankGifPath + '" class="img" style="'
 				+ style + '" alt="' + util.htmlEntities(name) + '">';
+
 	};
-	
+
 	$.emojiarea.createIcon = EmojiArea.createIcon;
 	/* ! MODIFICATION END */
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	/**
 	 * Editor (plain-text)
-	 * 
+	 *
 	 * @constructor
 	 * @param {object}
 	 *            $textarea
@@ -329,8 +337,7 @@
 			});
 		}
 
-    $textarea.after("<i class='emoji-picker-icon emoji-picker " + this.options.popupButtonClasses + "' data-id='" + id + "' data-type='picker'></i>");
-
+    $textarea.after("<i class='bu-icon bu-icon--emoji-smiley emoji-picker-open-button emoji-picker " + this.options.popupButtonClasses + "' data-id='" + id + "' data-type='picker'></i>");
 
 		this.setup();
 	};
@@ -378,7 +385,7 @@
 
 	/**
 	 * Emoji Dropdown Menu
-	 * 
+	 *
 	 * @constructor
 	 * @param {object}
 	 *            emojiarea
@@ -406,12 +413,15 @@
 				.appendTo(this.$menu);
 		this.$categoryTabs = $(
 				'<table class="emoji-menu-tabs"><tr>'
-						+ '<td><a class="emoji-menu-tab icon-recent" ></a></td>'
-						+ '<td><a class="emoji-menu-tab icon-smile" ></a></td>'
-						+ '<td><a class="emoji-menu-tab icon-flower"></a></td>'
-						+ '<td><a class="emoji-menu-tab icon-bell"></a></td>'
-						+ '<td><a class="emoji-menu-tab icon-car"></a></td>'
-						+ '<td><a class="emoji-menu-tab icon-grid"></a></td>'
+            + '<td><a class="bu-icon bu-icon--clock emoji-menu-tab "></a></td>'//Recent
+            + '<td><a class="bu-icon bu-icon--emoji-smiley emoji-menu-tab"></a></td>'//People
+            + '<td><a class="bu-icon bu-icon--circle_checked emoji-menu-tab "></a></td>'//Symbols
+						+ '<td><a class="bu-icon bu-icon--emoji-object emoji-menu-tab"></a></td>'//Objects
+            + '<td><a class="bu-icon bu-icon--emoji-travel emoji-menu-tab"></a></td>'//Places
+            + '<td><a class="bu-icon bu-icon--emoji-food emoji-menu-tab"></a></td>'//Foods
+						+ '<td><a class="bu-icon bu-icon--emoji-animal emoji-menu-tab"></a></td>'//Nature
+						+ '<td><a class="bu-icon bu-icon--emoji-activities emoji-menu-tab"></a></td>'//Activity
+						+ '<td><a class="bu-icon bu-icon--flag emoji-menu-tab"></a></td>'//Flags
 						+ '</tr></table>').appendTo(this.$itemsTailWrap);
 		this.$itemsWrap = $(
 				'<div class="emoji-items-wrap nano mobile_scrollable_wrap"></div>')
@@ -426,12 +436,12 @@
 		 * ! MODIFICATION: Following 3 lines were added by Igor Zhukov, in order
 		 * to add scrollbars to EmojiMenu
 		 */
-		
+
 		  if (!Config.Mobile) {
 		  this.$itemsWrap.nanoScroller({preventPageScrolling: true, tabIndex:
 		  -1}); }
-		 
-		
+
+
 		//this.$itemsWrap.nanoScroller({preventPageScrolling: true, tabIndex:* -1});
 
 		$body.on('keydown', function(e) {
@@ -524,20 +534,20 @@
 		var self = this;
 		this.$categoryTabs.find('.emoji-menu-tab').each(function(index) {
 			if (index === category) {
-				this.className += '-selected';
+        this.classList.add("emoji-menu-tab--selected");
 			} else {
-				this.className = this.className.replace('-selected', '');
+        this.classList.remove("emoji-menu-tab--selected");
 			}
 		});
 		this.currentCategory = category;
 		this.load(category);
 
-		
+
 		 if (!Config.Mobile) { this.$itemsWrap.nanoScroller({ scroll: 'top'
 		 }); }
-		 
-		 
-		 
+
+
+
 	};
 	/* ! MODIFICATION END */
 
@@ -571,10 +581,10 @@
 		var updateItems = function() {
 			self.$items.html(html.join(''));
 
-			
+
 			  if (!Config.Mobile) { setTimeout(function () {
 			  self.$itemsWrap.nanoScroller(); }, 100); }
-			 
+
 		}
 
 		if (category > 0) {
@@ -610,7 +620,7 @@
 				}
 				updateItems();
 			});
-		}0
+		}
 	};
 
 	EmojiMenu.prototype.reposition = function(attachmentLocation,menuLocation) {
@@ -629,21 +639,37 @@
 	};
 
   EmojiMenu.prototype.hide = function(callback) {
-    this.visible = false;
-    this.$menu.hide("fast");
+		this.visible = false;
+
+		// Note on the window global if the emoji picker is visible. Since there
+		// can be only one emoji picker at any time, this will work.
+		window.emojiPickerStatus.isPickerVisible = false;
+
+		this.$menu.hide("fast", function(){
+			// Reset to default category upon close
+			this.selectCategory(0);
+		}.bind(this));
   };
 
   EmojiMenu.prototype.show = function(emojiarea) {
-  	console.log(emojiarea)
     /*
      * MODIFICATION: Following line was modified by Igor Zhukov, in order to
      * improve EmojiMenu behaviour
      */
     if (this.visible)
       return this.hide();
+
     this.reposition(emojiarea.options.emojiAttachmentLocation,emojiarea.options.emojiMenuLocation);
 		$(this.$menu).css('z-index', ++EmojiMenu.menuZIndex);
-    this.$menu.show("fast");
+
+		// Show the emoji picker without animation. If we show animation
+		// there is actually a position change from bottom right to top left (say)
+		// which looks strange. To avoid that, remove the animation for now.
+		this.$menu.show();
+		// Call tether to position correctly accounting for viewport and
+		// such
+		this.tether.position();
+
     /*
      * MODIFICATION: Following 3 lines were added by Igor Zhukov, in order
      * to update EmojiMenu contents
@@ -651,8 +677,11 @@
     if (!this.currentCategory) {
       this.load(0);
     }
+
     this.visible = true;
-    this.tether.position()
+		// Note on the window global if the emoji picker is visible. Since there
+		// can be only one emoji picker at any time, this will work.
+		window.emojiPickerStatus.isPickerVisible = true;
     // this.tether.setOptions({enabled: true});
     // // Repositiong the menu as suggested by http://tether.io/overview/repositioning/
     // Tether.position();
@@ -664,18 +693,24 @@
 	ngEmojiPicker.directive('emojiPicker',function($parse){
 	  return{
 	    link: function(scope, element, attrs){
-	      console.log(attrs)
 	      var emojiAttachmentLocation = attrs["emojiAttachmentLocation"] || "bottom right";
 	      var emojiMenuLocation = attrs["emojiMenuLocation"] || "top left";
-	      console.log(emojiAttachmentLocation)
-	      console.log(emojiMenuLocation)
+
 	      window.emojiPicker = new EmojiPicker({
 	        emojiable_selector: '[emoji-picker="emoji-picker"]',
-	        assetsPath: '/assets/images/ng-emoji-picker',
+	        assetsPath: 'images',
 	        popupButtonClasses: 'fa fa-smile-o',
 	        emojiAttachmentLocation: emojiAttachmentLocation ,
-	        emojiMenuLocation: emojiMenuLocation 
+	        emojiMenuLocation: emojiMenuLocation
 	      });
+
+				// Note on the window global if the emoji picker is visible. Since there
+				// can be only one emoji picker at any time, this will work.
+				if (!window.emojiPickerStatus) {
+					window.emojiPickerStatus = {}
+					window.emojiPickerStatus.isPickerVisible = false;
+				}
+
 	      // Finds all elements with `emojiable_selector` and converts them to rich emoji input fields
 	      // You may want to delay this step if you have dynamically created input fields that appear later in the loading process
 	      // It can be called as many times as necessary; previously converted input fields will not be converted again

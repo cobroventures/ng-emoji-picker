@@ -7,6 +7,7 @@
         options = {};
       }
       $.emojiarea.iconSize = (ref = options.iconSize) != null ? ref : 25;
+      $.emojiarea.sheetIconSize = (ref = options.sheetIconSize) != null ? ref : 32;
       $.emojiarea.assetsPath = (ref1 = options.assetsPath) != null ? ref1 : '';
       this.generateEmojiIconSets(options);
       if (!options.emojiable_selector) {
@@ -28,7 +29,7 @@
     };
 
     EmojiPicker.prototype.generateEmojiIconSets = function(options) {
-      var column, dataItem, hex, i, icons, j, name, reverseIcons, row, totalColumns;
+      var column, dataItem, hex, i, icons, j, name, reverseIcons, row;
       icons = {};
       reverseIcons = {};
       i = void 0;
@@ -38,18 +39,20 @@
       dataItem = void 0;
       row = void 0;
       column = void 0;
-      totalColumns = void 0;
       j = 0;
       while (j < Config.EmojiCategories.length) {
-        totalColumns = Config.EmojiCategorySpritesheetDimens[j][1];
         i = 0;
         while (i < Config.EmojiCategories[j].length) {
-          dataItem = Config.Emoji[Config.EmojiCategories[j][i]];
-          name = dataItem[1][0];
-          row = Math.floor(i / totalColumns);
-          column = i % totalColumns;
-          icons[':' + name + ':'] = [j, row, column, ':' + name + ':'];
-          reverseIcons[name] = dataItem[0];
+          dataItem = Config.emoji_data[Config.EmojiCategories[j][i]];
+
+          if (dataItem) {
+            name = dataItem[3][0];
+            row = dataItem[5];
+            column = dataItem[4];
+
+            icons[':' + name + ':'] = [j, row, column, ':' + name + ':'];
+            reverseIcons[name] = dataItem[0];
+          }
           i++;
         }
         j++;
@@ -119,5 +122,3 @@
   })();
 
 }).call(this);
-
-//# sourceMappingURL=emoji-picker.js.map
