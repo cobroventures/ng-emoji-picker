@@ -690,7 +690,7 @@
 
   var ngEmojiPicker = angular.module('ngEmojiPicker', []);
 
-	ngEmojiPicker.directive('emojiPicker',function($parse){
+	ngEmojiPicker.directive('emojiPicker',[function(){
 	  return{
 	    link: function(scope, element, attrs){
 	      var emojiAttachmentLocation = attrs["emojiAttachmentLocation"] || "bottom right";
@@ -717,6 +717,6 @@
 	      window.emojiPicker.discover();
 	    }
 	  };
-	})
+	}]);
 
 })(jQuery, window, document);
