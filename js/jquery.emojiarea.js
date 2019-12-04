@@ -144,7 +144,14 @@
 	util.insertAtCursor = function(text, el) {
 		/*Do not add an extra white-space*/
 		var val = el.value, endIndex, startIndex, range;
-		if (typeof el.selectionStart != 'undefined'
+    if (window.emojiPicker.insertEmojiFunc && window.emojiPicker.options.targetIdentifier){
+      // If the client provided a function to add the emojis, use that to add the
+      // emoji to the element. This is used in the case of the trix editor since
+      // that uses its own function to insert text into its editor.
+      // A target identifier is needed so that we can identify which element (trix editor)
+      // to target since there can be multiple trix editors
+      window.emojiPicker.insertEmojiFunc(window.emojiPicker.options.targetIdentifier, text);
+    } else if (typeof el.selectionStart != 'undefined'
 				&& typeof el.selectionEnd != 'undefined') {
 			startIndex = el.selectionStart;
 			endIndex = el.selectionEnd;
@@ -292,6 +299,12 @@
 		this.$editor = $textarea;
     this.id = id;
 
+    // The code below changes emoji unicodes to images, since
+    // images look better on the UI. However, this code causes
+    // rendering when using it in conjunction with the image
+    // picker, so just avoid having this code for now. The emojis
+    // look fine.
+    /*
     var unicodeToImageText = this.emojiPopup.unicodeToImage($textarea.val());
 		this.$editor.html(unicodeToImageText);
 		this.$editor.attr({
@@ -299,7 +312,7 @@
 			'data-type': 'input',
 			'placeholder': $textarea.attr('placeholder'),
 			'contenteditable': 'true',
-		});
+		});*/
 
 	var changeEvents = 'blur change';
 		if (!this.options.norealTime) {
@@ -696,13 +709,26 @@
 	      var emojiAttachmentLocation = attrs["emojiAttachmentLocation"] || "bottom right";
 	      var emojiMenuLocation = attrs["emojiMenuLocation"] || "top left";
 
+
 	      window.emojiPicker = new EmojiPicker({
-	        emojiable_selector: '[emoji-picker="emoji-picker"]',
+          // Ignore when emoji picker has already been converted so that
+          // we do not convert multiple times
+	        emojiable_selector: '[emoji-picker="emoji-picker"][data-emojiable!=converted]',
 	        assetsPath: 'images',
 	        popupButtonClasses: 'fa fa-smile-o',
-	        emojiAttachmentLocation: emojiAttachmentLocation ,
-	        emojiMenuLocation: emojiMenuLocation
+	        emojiAttachmentLocation: emojiAttachmentLocation,
+          emojiMenuLocation: emojiMenuLocation,
+          // A target identifier is needed so that we can identify which element (trix editor)
+          // to target since there can be multiple trix editors
+          // this is optional
+          targetIdentifier: attrs["targetIdentifier"]
 	      });
+
+        // If the client provided a function to add the emojis, use that to add the
+        // emoji to the element. This is used in the case of the trix editor since
+        // that uses its own function to insert text into its editor.
+        // With this function a target identifier is to be provided.
+        window.emojiPicker.insertEmojiFunc = scope.insertEmojiFunc;
 
 				// Note on the window global if the emoji picker is visible. Since there
 				// can be only one emoji picker at any time, this will work.
