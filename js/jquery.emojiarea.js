@@ -766,9 +766,9 @@
           }
         }
 
-        // I am not sure if the name open.conf-dialog, is generic enough, but
+        // I am not sure if the name open.leave-conf-dialog, is generic enough, but
         // I guess it is OK.
-        scope.$on('open.conf-dialog', hideEmojiMenuElement)
+        scope.$on('open.leave-conf-dialog', hideEmojiMenuElement)
         scope.$on('$stateChangeStart', hideEmojiMenuElement);
         scope.$on('$destroy', removeEmojiMenuElement);
 
