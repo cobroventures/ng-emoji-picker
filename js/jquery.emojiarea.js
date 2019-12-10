@@ -185,8 +185,8 @@
 	};
 
 	util.htmlEntities = function(str) {
-		return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 	};
 
 	/*
@@ -272,7 +272,8 @@
 
     style += 'background: url('+filename+');background-position:'+(sheet_x)+'% '+(sheet_y)+'%;background-size:'+sheet_sz+'% '+sheet_sz+'%';
 
-		return '<img src="' + blankGifPath + '" class="img" style="'
+      // Do not allow users to drag these emojis
+		return '<img src="' + blankGifPath + '" draggable="false" class="img" style="'
 				+ style + '" alt="' + util.htmlEntities(name) + '">';
 
 	};
@@ -417,6 +418,8 @@
     this.$menu.attr('data-id', self.id);
     this.$menu.attr('data-type', 'menu');
 		this.$menu.hide();
+
+    window.emojiPickerStatus.emojiMenu = this.$menu;
 		/*
 		 * ! MODIFICATION START Following code was modified by Igor Zhukov, in
 		 * order to add scrollbars and tail to EmojiMenu Also modified by Andre
@@ -609,7 +612,7 @@
 				 */
 				if (options.hasOwnProperty(key)
 						&& options[key][0] === (category - 1)) {
-					html.push('<a href="javascript:void(0)" title="'
+					html.push('<a href="javascript:void(0)" draggable="false" title="'
 							+ util.htmlEntities(key) + '">'
 							+ EmojiArea.createIcon(options[key], true)
 							+ '<span class="label">' + util.htmlEntities(key)
@@ -624,7 +627,7 @@
 				for (i = 0; i < curEmojis.length; i++) {
 					key = curEmojis[i]
 					if (options[key]) {
-						html.push('<a href="javascript:void(0)" title="'
+						html.push('<a href="javascript:void(0)" draggable="false" title="'
 								+ util.htmlEntities(key) + '">'
 								+ EmojiArea.createIcon(options[key], true)
 								+ '<span class="label">'
@@ -733,14 +736,42 @@
 				// Note on the window global if the emoji picker is visible. Since there
 				// can be only one emoji picker at any time, this will work.
 				if (!window.emojiPickerStatus) {
-					window.emojiPickerStatus = {}
-					window.emojiPickerStatus.isPickerVisible = false;
+					window.emojiPickerStatus = {};
 				}
+
+        // Signifies if empji picker is visible
+        window.emojiPickerStatus.isPickerVisible = false;
+        // The menu element itself
+        window.emojiPickerStatus.emojiMenu = null
 
 	      // Finds all elements with `emojiable_selector` and converts them to rich emoji input fields
 	      // You may want to delay this step if you have dynamically created input fields that appear later in the loading process
 	      // It can be called as many times as necessary; previously converted input fields will not be converted again
 	      window.emojiPicker.discover();
+
+        function removeEmojiMenuElement() {
+          // When the directive is destroyed, remove the emoji picker from the
+          // DOM as well. Currently we are using the emoji picker as a singleton,
+          // which works for now but has to be looked at later
+          if (window.emojiPickerStatus.emojiMenu) {
+            window.emojiPickerStatus.emojiMenu.remove();
+          }
+        }
+
+        function hideEmojiMenuElement() {
+          // When the state chagnes or we show a dialog on top, hide the
+          // emoji picker since we have gone to a different context.
+          if (window.emojiPickerStatus.emojiMenu) {
+            window.emojiPickerStatus.emojiMenu.hide();
+          }
+        }
+
+        // I am not sure if the name open.conf-dialog, is generic enough, but
+        // I guess it is OK.
+        scope.$on('open.conf-dialog', hideEmojiMenuElement)
+        scope.$on('$stateChangeStart', hideEmojiMenuElement);
+        scope.$on('$destroy', removeEmojiMenuElement);
+
 	    }
 	  };
 	}]);
