@@ -739,9 +739,9 @@
 					window.emojiPickerStatus = {};
 				}
 
-        // Signifies if empji picker is visible
+        // Signifies if emoji picker is visible
         window.emojiPickerStatus.isPickerVisible = false;
-        // The menu element itself
+        // The menu element corresponding to the emoji picker
         window.emojiPickerStatus.emojiMenu = null
 
 	      // Finds all elements with `emojiable_selector` and converts them to rich emoji input fields
