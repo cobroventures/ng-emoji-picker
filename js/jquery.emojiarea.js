@@ -305,6 +305,7 @@
     // rendering when using it in conjunction with the image
     // picker, so just avoid having this code for now. The emojis
     // look fine.
+
     /*
     var unicodeToImageText = this.emojiPopup.unicodeToImage($textarea.val());
 		this.$editor.html(unicodeToImageText);
@@ -419,7 +420,7 @@
     this.$menu.attr('data-type', 'menu');
 		this.$menu.hide();
 
-    window.emojiPickerStatus.emojiMenu = this.$menu;
+    window.emojiPickerStatus.emojiMenu = this;
 		/*
 		 * ! MODIFICATION START Following code was modified by Igor Zhukov, in
 		 * order to add scrollbars and tail to EmojiMenu Also modified by Andre
@@ -460,22 +461,23 @@
 
 		//this.$itemsWrap.nanoScroller({preventPageScrolling: true, tabIndex:* -1});
 
-		$body.on('keydown', function(e) {
-			if (e.keyCode === KEY_ESC || e.keyCode === KEY_TAB) {
+    this.handleKeydown = function(e) {
+      if (e.keyCode === KEY_ESC || e.keyCode === KEY_TAB) {
 				self.hide();
 			}
-		});
+    }
+
 
 		/*
 		 * ! MODIFICATION: Following 3 lines were added by Igor Zhukov, in order
 		 * to hide menu on message submit with keyboard
 		 */
-		$body.on('message_send', function(e) {
-			self.hide();
-		});
+    this.handleMessageSend = function(e) {
+      self.hide();
+    }
 
-		$body.on('mouseup', function(e) {
-			/*
+    this.onMouseUp = function(e){
+      /*
 			 * ! MODIFICATION START Following code was added by Igor Zhukov, in
 			 * order to prevent close on click on EmojiMenu scrollbar
 			 */
@@ -495,7 +497,7 @@
 			}
 			/* ! MODIFICATION END */
 			self.hide();
-		});
+    }
 
 		this.$menu.on('mouseup', 'a', function(e) {
 			e.stopPropagation();
@@ -655,7 +657,19 @@
 	};
 
   EmojiMenu.prototype.hide = function(callback) {
+    if (!this.visible) {
+      // If not visible, exit
+      return;
+    }
+
+
 		this.visible = false;
+
+    // Disable all click handlers so that the memory can be
+    // released
+    $(document.body).off('mouseup', this.onMouseUp);
+    $(document.body).off('message_send', this.handleMessageSend);
+    $(document.body).off('keydown', this.handleKeydown);
 
 		// Note on the window global if the emoji picker is visible. Since there
 		// can be only one emoji picker at any time, this will work.
@@ -667,6 +681,16 @@
 		}.bind(this));
   };
 
+  // Clear all listeners and also remove from DOM
+  EmojiMenu.prototype.clearAndRemove = function() {
+    // Remove all listeners on button
+    this.emojiarea.$button.off();
+    // Remove all listeners on menu
+    this.$menu.off();
+    // Remove from DOM
+    this.$menu.remove();
+  };
+
   EmojiMenu.prototype.show = function(emojiarea) {
     /*
      * MODIFICATION: Following line was modified by Igor Zhukov, in order to
@@ -674,6 +698,12 @@
      */
     if (this.visible)
       return this.hide();
+
+      // Add all click handlers so that the emoji menu can be
+      // closed upon click of the body outside the emoji picker
+      $(document.body).on('mouseup', this.onMouseUp);
+      $(document.body).on('message_send', this.handleMessageSend);
+      $(document.body).on('keydown', this.handleKeydown);
 
     this.reposition(emojiarea.options.emojiAttachmentLocation,emojiarea.options.emojiMenuLocation);
 		$(this.$menu).css('z-index', ++EmojiMenu.menuZIndex);
@@ -741,8 +771,8 @@
 
         // Signifies if emoji picker is visible
         window.emojiPickerStatus.isPickerVisible = false;
-        // The menu element corresponding to the emoji picker
-        window.emojiPickerStatus.emojiMenu = null
+        // The menu element itself
+        window.emojiPickerStatus.emojiMenu = null;
 
 	      // Finds all elements with `emojiable_selector` and converts them to rich emoji input fields
 	      // You may want to delay this step if you have dynamically created input fields that appear later in the loading process
@@ -754,7 +784,12 @@
           // DOM as well. Currently we are using the emoji picker as a singleton,
           // which works for now but has to be looked at later
           if (window.emojiPickerStatus.emojiMenu) {
-            window.emojiPickerStatus.emojiMenu.remove();
+            // Hide the emoji picker
+            window.emojiPickerStatus.emojiMenu.hide();
+            // Unbind handlers and remove from DOM
+            window.emojiPickerStatus.emojiMenu.clearAndRemove();
+            // Clear reference so it can be garbage collceted
+            window.emojiPickerStatus.emojiMenu = null;
           }
         }
 
