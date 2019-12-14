@@ -45,7 +45,7 @@
 		emojiMenuLocation: "top left",
 		icons : {},
 	};
-	var defaultRecentEmojis = ':joy:,:kissing_heart:,:heart:,:heart_eyes:,:blush:,:grin:,:+1:,:relaxed:,:pensive:,:smile:,:sob:,:kiss:,:unamused:,:flushed:,:stuck_out_tongue_winking_eye:,:see_no_evil:,:wink:,:smiley:,:cry:,:stuck_out_tongue_closed_eyes:,:scream:,:rage:,:smirk:,:disappointed:,:sweat_smile:,:kissing_closed_eyes:,:speak_no_evil:,:relieved:,:grinning:,:yum:,:laughing:,:ok_hand:,:neutral_face:,:confused:'
+	var defaultRecentEmojis = ':joy:,:kissing_heart:,:heart:,:heart_eyes:,:blush:,:grin:,:+1:,:pensive:,:smile:,:sob:,:kiss:,:unamused:,:flushed:,:stuck_out_tongue_winking_eye:,:see_no_evil:,:wink:,:smiley:,:cry:,:stuck_out_tongue_closed_eyes:,:scream:,:rage:,:smirk:,:disappointed:,:sweat_smile:,:kissing_closed_eyes:,:speak_no_evil:,:relieved:,:grinning:,:yum:,:laughing:,:ok_hand:,:neutral_face:,:confused:'
 			.split(',');
 	/* ! MODIFICATION END */
 
@@ -754,7 +754,12 @@
           // A target identifier is needed so that we can identify which element (trix editor)
           // to target since there can be multiple trix editors
           // this is optional
-          targetIdentifier: attrs["targetIdentifier"]
+          targetIdentifier: attrs["targetIdentifier"],
+          // So these emojis are not displayed properly in one browser or the other
+          // relaxed: firefox and chrone (windows)
+          // spades, hearts, diamonds, clubs: irefox
+          // Just do not show them in the emoji picker for now
+          blacklistedEmojis: ['relaxed', 'spades', 'hearts', 'diamonds', 'clubs']
 	      });
 
         // If the client provided a function to add the emojis, use that to add the

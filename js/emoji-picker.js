@@ -6,6 +6,8 @@
       if (options == null) {
         options = {};
       }
+      this.options = options;
+
       $.emojiarea.iconSize = (ref = options.iconSize) != null ? ref : 25;
       $.emojiarea.sheetIconSize = (ref = options.sheetIconSize) != null ? ref : 32;
       $.emojiarea.assetsPath = (ref1 = options.assetsPath) != null ? ref1 : '';
@@ -13,7 +15,6 @@
       if (!options.emojiable_selector) {
         options.emojiable_selector = '[data-emojiable=true]';
       }
-      this.options = options;
     }
 
     EmojiPicker.prototype.discover = function() {
@@ -27,6 +28,14 @@
         norealTime: true
       }, this.options));
     };
+
+    EmojiPicker.prototype.isEmojiInBlacklist = function(emojiName){
+      if (!this.options || !this.options.blacklistedEmojis) {
+        return false;
+      }
+
+      return (this.options.blacklistedEmojis.indexOf(emojiName) !== -1);
+    }
 
     EmojiPicker.prototype.generateEmojiIconSets = function(options) {
       var column, dataItem, hex, i, icons, j, name, reverseIcons, row;
@@ -50,8 +59,12 @@
             row = dataItem[5];
             column = dataItem[4];
 
-            icons[':' + name + ':'] = [j, row, column, ':' + name + ':'];
-            reverseIcons[name] = dataItem[0];
+            // Certain emojis do not render properly on certain browser,
+            // So we want to not present certain emojis in the emoji picker
+            if (!this.isEmojiInBlacklist(name)) {
+              icons[':' + name + ':'] = [j, row, column, ':' + name + ':'];
+              reverseIcons[name] = dataItem[0];
+            }
           }
           i++;
         }
