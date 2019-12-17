@@ -26,6 +26,7 @@
 	var TAGS_BLOCK = [ 'p', 'div', 'pre', 'form' ];
 	var KEY_ESC = 27;
 	var KEY_TAB = 9;
+  var KEY_ENTER = 13;
 	/* Keys that are not intercepted and canceled when the textbox has reached its max length:
 	 	   Backspace, Tab, Ctrl, Alt, Left Arrow, Up Arrow, Right Arrow, Down Arrow, Cmd Key, Delete
 	*/
@@ -184,9 +185,17 @@
 		return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
 	};
 
-	util.htmlEntities = function(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+	util.htmlEntities = function(str, replaceColons) {
+    var retStr = String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    if (replaceColons) {
+      // The string is of the form ":smiley:" but we want to show smiley
+      // instead in the tooltip. So remove the ":"
+      retStr = retStr.replace(/:/g, '');
+    }
+
+    return retStr;
 	};
 
 	/*
@@ -274,7 +283,7 @@
 
       // Do not allow users to drag these emojis
 		return '<img src="' + blankGifPath + '" draggable="false" class="img" style="'
-				+ style + '" alt="' + util.htmlEntities(name) + '">';
+				+ style + '" alt="' + util.htmlEntities(name, true) + '">';
 
 	};
 
@@ -462,7 +471,8 @@
 		//this.$itemsWrap.nanoScroller({preventPageScrolling: true, tabIndex:* -1});
 
     this.handleKeydown = function(e) {
-      if (e.keyCode === KEY_ESC || e.keyCode === KEY_TAB) {
+      // Close on enter key press as well
+      if (e.keyCode === KEY_ESC || e.keyCode === KEY_TAB || e.keyCode === KEY_ENTER) {
 				self.hide();
 			}
     }
@@ -615,7 +625,7 @@
 				if (options.hasOwnProperty(key)
 						&& options[key][0] === (category - 1)) {
 					html.push('<a href="javascript:void(0)" draggable="false" title="'
-							+ util.htmlEntities(key) + '">'
+							+ util.htmlEntities(key, true) + '">'
 							+ EmojiArea.createIcon(options[key], true)
 							+ '<span class="label">' + util.htmlEntities(key)
 							+ '</span></a>');
@@ -630,7 +640,7 @@
 					key = curEmojis[i]
 					if (options[key]) {
 						html.push('<a href="javascript:void(0)" draggable="false" title="'
-								+ util.htmlEntities(key) + '">'
+								+ util.htmlEntities(key, true) + '">'
 								+ EmojiArea.createIcon(options[key], true)
 								+ '<span class="label">'
 								+ util.htmlEntities(key) + '</span></a>');
