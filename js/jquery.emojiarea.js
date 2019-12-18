@@ -185,14 +185,18 @@
 		return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
 	};
 
-	util.htmlEntities = function(str, replaceColons) {
+  // When the isForDisplay field is triur, it means that this can be
+  // potentially dispalyed to the user.
+	util.htmlEntities = function(str, isForDisplay) {
     var retStr = String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-    if (replaceColons) {
+    if (isForDisplay) {
       // The string is of the form ":smiley:" but we want to show smiley
       // instead in the tooltip. So remove the ":"
-      retStr = retStr.replace(/:/g, '');
+      // Also replace _ with white space since underscore looks a little
+      // more technical in this context
+      retStr = retStr.replace(/:/g, '').replace(/_/g, ' ');
     }
 
     return retStr;
