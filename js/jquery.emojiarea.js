@@ -683,7 +683,7 @@
     // released
     $(document.body).off('mouseup', this.onMouseUp);
     $(document.body).off('message_send', this.handleMessageSend);
-    $(document.body).off('keydown', this.handleKeydown);
+    $(document.body)[0].removeEventListener('keydown', this.handleKeydown, true);
 
 		// Note on the window global if the emoji picker is visible. Since there
 		// can be only one emoji picker at any time, this will work.
@@ -717,7 +717,10 @@
       // closed upon click of the body outside the emoji picker
       $(document.body).on('mouseup', this.onMouseUp);
       $(document.body).on('message_send', this.handleMessageSend);
-      $(document.body).on('keydown', this.handleKeydown);
+      // We want to "capture" the keydown. The capture cannot be done with
+      // jquery, so using JS. Passing in true so that we always get the
+      // event.
+      $(document.body)[0].addEventListener('keydown', this.handleKeydown, true);
 
     this.reposition(emojiarea.options.emojiAttachmentLocation,emojiarea.options.emojiMenuLocation);
 		$(this.$menu).css('z-index', ++EmojiMenu.menuZIndex);
