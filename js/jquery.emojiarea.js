@@ -451,7 +451,8 @@
             + '<td><a class="bu-icon bu-icon--emoji-food emoji-menu-tab"></a></td>'//Foods
 						+ '<td><a class="bu-icon bu-icon--emoji-animal emoji-menu-tab"></a></td>'//Nature
 						+ '<td><a class="bu-icon bu-icon--emoji-activities emoji-menu-tab"></a></td>'//Activity
-						+ '<td><a class="bu-icon bu-icon--flag emoji-menu-tab"></a></td>'//Flags
+            // The flags do not display properly on windows. Hide the category for now.
+						//+ '<td><a class="bu-icon bu-icon--flag emoji-menu-tab"></a></td>'//Flags
 						+ '</tr></table>').appendTo(this.$itemsTailWrap);
 		this.$itemsWrap = $(
 				'<div class="emoji-items-wrap nano mobile_scrollable_wrap"></div>')
