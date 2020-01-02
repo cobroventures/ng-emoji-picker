@@ -125,7 +125,8 @@ img.emoji {
 .emoji-menu {
     position: absolute;
     z-index: 999;
-    width: 316px;
+    /* calculate width as - 26 * numCategories + 6 * numCategories (6px is the extra margin) + 12*2 (padding)
+    width: 280px;/*(26 + 6)*8 + 12*2 */
     overflow: hidden;
     border: 1px #dfdfdf solid;
     -webkit-border-radius: 3px;
