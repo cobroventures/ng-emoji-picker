@@ -365,7 +365,10 @@
 			});
 		}
 
-    $textarea.after("<i class='bu-icon bu-icon--emoji-smiley emoji-picker-open-button emoji-picker " + this.options.popupButtonClasses + "' data-id='" + id + "' data-type='picker'></i>");
+    // Instead of adding right after, add it as the last child of parent.
+    // This is because the styling for inputs labels depends on the
+    // textarea being the previous sibling, and we do not want to break that.
+    $textarea.parent().append("<i class='bu-icon bu-icon--emoji-smiley emoji-picker-open-button emoji-picker " + this.options.popupButtonClasses + "' data-id='" + id + "' data-type='picker'></i>");
 
 		this.setup();
 	};
