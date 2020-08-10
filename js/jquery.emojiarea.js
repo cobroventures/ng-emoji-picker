@@ -248,6 +248,17 @@
 		var $button = $('[data-id=' + this.id + '][data-type=picker]');
 
     $button.on('click', function(e) {
+
+      // get the angular root scope and broadcase an open message so the angular directive 'emojiPicker' knows
+      // to update the emoji insert function
+      var $rootScope = angular.element(document).scope();
+      $rootScope.$broadcast('bu.emoji-menu.open', self.options.targetIdentifier);
+
+      // close any open emoji pickers, we only support one emoji picker at a time
+      if (window.emojiPickerStatus.emojiMenu) {
+        window.emojiPickerStatus.emojiMenu.hide();
+      }
+
       self.emojiMenu.show(self);
 		});
 
@@ -763,7 +774,6 @@
 	      var emojiAttachmentLocation = attrs["emojiAttachmentLocation"] || "bottom right";
 	      var emojiMenuLocation = attrs["emojiMenuLocation"] || "top left";
 
-
 	      window.emojiPicker = new EmojiPicker({
           // Ignore when emoji picker has already been converted so that
           // we do not convert multiple times
@@ -827,9 +837,29 @@
           }
         }
 
+        /**
+         * @private
+         * @function onOpenEmojiMenuElement
+         *
+         * @description Called when the emoji menu is about to open.  This function is used to reset the
+         * insertEmojiFunc based on the scope of the element.  For this to work the targetIdentifier needs
+         * to be set on the text area.
+         *
+         */
+        function onOpenEmojiMenuElement(evt, targetIdentifier) {
+          if(targetIdentifier !== attrs["targetIdentifier"]){
+            return;
+          }
+
+          // update the emoji insert function with this scope's function
+          window.emojiPicker.insertEmojiFunc = scope.insertEmojiFunc;
+        }
+
         // I am not sure if the name open.leave-conf-dialog, is generic enough, but
         // I guess it is OK.
         scope.$on('open.leave-conf-dialog', hideEmojiMenuElement)
+        scope.$on('bu.emoji-menu.open', onOpenEmojiMenuElement)
+        scope.$on('bu.emoji-menu.close', hideEmojiMenuElement)
         scope.$on('$stateChangeStart', hideEmojiMenuElement);
         scope.$on('$destroy', removeEmojiMenuElement);
 
