@@ -252,7 +252,7 @@
       // get the angular root scope and broadcase an open message so the angular directive 'emojiPicker' knows
       // to update the emoji insert function
       var $rootScope = angular.element(document).scope();
-      $rootScope.$broadcast('bu.emoji-menu.open', self.options.targetIdentifier);
+      $rootScope.$broadcast('emoji-menu.open', self.options.targetIdentifier);
 
       // close any open emoji pickers, we only support one emoji picker at a time
       if (window.emojiPickerStatus.emojiMenu) {
@@ -858,8 +858,8 @@
         // I am not sure if the name open.leave-conf-dialog, is generic enough, but
         // I guess it is OK.
         scope.$on('open.leave-conf-dialog', hideEmojiMenuElement)
-        scope.$on('bu.emoji-menu.open', onOpenEmojiMenuElement)
-        scope.$on('bu.emoji-menu.close', hideEmojiMenuElement)
+        scope.$on('emoji-menu.open', onOpenEmojiMenuElement)
+        scope.$on('emoji-menu.close', hideEmojiMenuElement)
         scope.$on('$stateChangeStart', hideEmojiMenuElement);
         scope.$on('$destroy', removeEmojiMenuElement);
 
