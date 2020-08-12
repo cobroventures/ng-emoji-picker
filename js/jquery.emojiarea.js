@@ -251,7 +251,7 @@
 
       // get the angular root scope and broadcase an open message so the angular directive 'emojiPicker' knows
       // to update the emoji insert function
-      var $rootScope = angular.element(document).scope();
+      var $rootScope = angular.element(document.querySelector('body')).injector().get('$rootScope');
       $rootScope.$broadcast('emoji-menu.open', self.options.targetIdentifier);
 
       // close any open emoji pickers, we only support one emoji picker at a time
