@@ -805,7 +805,7 @@
 	      // It can be called as many times as necessary; previously converted input fields will not be converted again
 	      window.emojiPicker.discover();
 
-        function removeEmojiMenuElement() {
+        function clearEmojiPickerState() {
           // When the directive is destroyed, remove the emoji picker from the
           // DOM as well. Currently we are using the emoji picker as a singleton,
           // which works for now but has to be looked at later
@@ -816,6 +816,10 @@
             window.emojiPickerStatus.emojiMenu.clearAndRemove();
             // Clear reference so it can be garbage collceted
             window.emojiPickerStatus.emojiMenu = null;
+          }
+
+          if (window.emojiPicker.insertEmojiFunc) {
+            window.emojiPicker.insertEmojiFunc = angular.noop;
           }
         }
 
@@ -831,7 +835,7 @@
         // I guess it is OK.
         scope.$on('open.leave-conf-dialog', hideEmojiMenuElement)
         scope.$on('$stateChangeStart', hideEmojiMenuElement);
-        scope.$on('$destroy', removeEmojiMenuElement);
+        scope.$on('$destroy', clearEmojiPickerState);
 
 	    }
 	  };
