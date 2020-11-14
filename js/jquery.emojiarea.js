@@ -819,7 +819,7 @@
           }
 
           if (window.emojiPicker.insertEmojiFunc) {
-            window.emojiPicker.insertEmojiFunc = angular.noop;
+            window.emojiPicker.insertEmojiFunc = null;
           }
         }
 
