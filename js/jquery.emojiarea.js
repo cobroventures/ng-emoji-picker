@@ -702,9 +702,11 @@
 
 		// Note on the window global if the emoji picker is visible. Since there
 		// can be only one emoji picker at any time, this will work.
-		window.emojiPickerStatus.isPickerVisible = false;
+    updateGlobalEmojiPickerVisiblity(this, false);
 
 		this.$menu.hide("fast", function(){
+      updateGlobalEmojiPickerVisiblity(this, false);
+
 			// Reset to default category upon close
 			this.selectCategory(0);
 		}.bind(this));
@@ -759,12 +761,55 @@
     this.visible = true;
 		// Note on the window global if the emoji picker is visible. Since there
 		// can be only one emoji picker at any time, this will work.
-		window.emojiPickerStatus.isPickerVisible = true;
+    updateGlobalEmojiPickerVisiblity(this, true);
     // this.tether.setOptions({enabled: true});
     // // Repositiong the menu as suggested by http://tether.io/overview/repositioning/
     // Tether.position();
   };
 
+  /**
+   * @private
+   * @function updateGlobalEmojiPickerVisiblity
+   *
+   * @description We will update the global variables related to the display
+   * of the emoji picker. The updated will happen if
+   * (A) The new status is that the picker is visible. Here we need to
+   * record the id of the new emoji picker OR
+   * (B) If the emoji picker ID matches the currently visible emoji picker.
+   * What can happen is that emoji picker 1 opens, and the emoji picker 2
+   * closes afterward (due to animation, see this.$menu.hide("fast") in the
+   * hide code. In order to make sure we have the global variables correctly
+   * set, we need to have the check as listed in (B) above
+   *
+   * @param {Object} emojiPickerInstance - The instance of the emoji picker
+   *
+   * @param {Boolean} updatedStatus - The new visibility status of the emoji
+   * picker instance.
+   *
+   */
+  function updateGlobalEmojiPickerVisiblity(emojiPickerInstance, updatedStatus){
+    // Get a handle to the currently visible emoji picker
+    // instance, if any
+    var previousVisibleEmojiPickerInstance = window.emojiPickerStatus.visibleEmojiPickerInstance;
+
+    // The clause below is explained in the function comments above.
+    if (updatedStatus || (window.emojiPickerStatus.visibleEmojiPickerInstance && emojiPickerInstance &&
+          window.emojiPickerStatus.visibleEmojiPickerInstance.id === emojiPickerInstance.id)) {
+      // Record the new visible emoji picker instance if updatedStatus is true. Otherwise
+      // clear the visibleId
+      window.emojiPickerStatus.visibleEmojiPickerInstance = updatedStatus ? emojiPickerInstance : null;
+      // Record the updated status
+      window.emojiPickerStatus.isPickerVisible = updatedStatus;
+      if (window.emojiPicker.onEmojiPickerVisibilityChange) {
+        // If an external function was provided, call that function.
+        window.emojiPicker.onEmojiPickerVisibilityChange(updatedStatus);
+      }
+
+      if (previousVisibleEmojiPickerInstance) {
+        previousVisibleEmojiPickerInstance.hide();
+      }
+    }
+  }
 
   var ngEmojiPicker = angular.module('ngEmojiPicker', []);
 
@@ -798,6 +843,8 @@
         // that uses its own function to insert text into its editor.
         // With this function a target identifier is to be provided.
         window.emojiPicker.insertEmojiFunc = scope.insertEmojiFunc;
+        window.emojiPicker.onEmojiPickerVisibilityChange = scope.onEmojiPickerVisibilityChange;
+
 
 				// Note on the window global if the emoji picker is visible. Since there
 				// can be only one emoji picker at any time, this will work.
@@ -807,6 +854,8 @@
 
         // Signifies if emoji picker is visible
         window.emojiPickerStatus.isPickerVisible = false;
+        // This is the instance of the emoji picker that is currently visible.
+        window.emojiPickerStatus.visibleEmojiPickerInstance = null;
         // The menu element itself
         window.emojiPickerStatus.emojiMenu = null;
 
@@ -831,6 +880,11 @@
           if (window.emojiPicker.insertEmojiFunc) {
             window.emojiPicker.insertEmojiFunc = null;
           }
+
+          if (window.emojiPicker.onEmojiPickerVisibilityChange) {
+            window.emojiPicker.onEmojiPickerVisibilityChange = null;
+          }
+
         }
 
         function hideEmojiMenuElement() {
@@ -857,6 +911,7 @@
 
           // update the emoji insert function with this scope's function
           window.emojiPicker.insertEmojiFunc = scope.insertEmojiFunc;
+          window.emojiPicker.onEmojiPickerVisibilityChange = scope.onEmojiPickerVisibilityChange;
         }
 
         // I am not sure if the name open.leave-conf-dialog, is generic enough, but
