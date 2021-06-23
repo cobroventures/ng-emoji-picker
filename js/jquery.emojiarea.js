@@ -705,6 +705,20 @@
     updateGlobalEmojiPickerVisiblity(this, false);
 
 		this.$menu.hide("fast", function(){
+			// There are 2 ways to close the emoji picker
+			// 1. Click on the button that launches the emoji picker. In this case, the following
+			// 		sequence of events occurs:
+			// 		- The emoji picker is open and the user clicks on the emoji picker launch button. The emoji
+			//			picker visibility is true.
+			//		- The emoji picker hide function is called (see above) and the hide animation is started.
+			//			This will set the emoji picker visibility to false.
+			//		- The emoji picker show function is called (yes really). This will set the emoji picker
+			//			visibility to true.
+			//		- The animation completes (and we are in this code block). We have to update the emoji
+			//			picker visibility to false (unless a different emoji picker instance is now open)
+			// 2. Click on some other part of the UI. This instance emoji picker will close after the
+			// 		animation. We will end up calling the emoji picker visibility update twice, but that is
+			//		not a problem.
       updateGlobalEmojiPickerVisiblity(this, false);
 
 			// Reset to default category upon close
@@ -852,7 +866,12 @@
 					window.emojiPickerStatus = {};
 				}
 
-        // Signifies if emoji picker is visible
+        // Signifies if emoji picker is visible. This is initialization. The reason
+				// we are not using updateGlobalEmojiPickerVisiblity is because that is code
+				// that will look at the previous state (non-existent) and then not update the
+				// state. It does not matter since even if we do not initialize these will be
+				// undefined, but we should initialize so that it is a little more clear what
+				// all is available on the emojiPickerStatus
         window.emojiPickerStatus.isPickerVisible = false;
         // This is the instance of the emoji picker that is currently visible.
         window.emojiPickerStatus.visibleEmojiPickerInstance = null;
